@@ -1,0 +1,16 @@
+node_modules
+**/node_modules
+dist
+**/dist
+.git
+.env
+**/.env
+backend/whatsapp-session
+backend/.wwebjs_cache
+backend/.wwebjs_auth
+frontend/dist
+*.log
+coverage
+.claude
+manual
+README.md

@@ -1,5 +1,6 @@
 import cors from "cors";
 import express from "express";
+import { env } from "./config/env";
 import { authMiddleware } from "./middleware/auth.middleware";
 import { errorHandler } from "./middleware/errorHandler.middleware";
 import { authRoutes } from "./modules/auth/auth.routes";
@@ -16,7 +17,18 @@ import { relatoriosRoutes } from "./modules/relatorios/relatorios.routes";
 
 export const app = express();
 
-app.use(cors());
+// Em produção, restringe o CORS às origens listadas em FRONTEND_URL (aceita várias,
+// separadas por vírgula, para cobrir domínio próprio + preview URLs). Em dev, mantém
+// aberto para não travar o fluxo local do time.
+const allowedOrigins = env.FRONTEND_URL.split(",").map((origin) => origin.trim());
+
+app.use(
+  cors(
+    env.NODE_ENV === "production"
+      ? { origin: allowedOrigins }
+      : undefined,
+  ),
+);
 app.use(express.json());
 
 app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
