@@ -55,7 +55,10 @@
       "Bash(curl -s --max-time 10 -w \"\\\\nHTTP:%{http_code}\\\\n\" http://localhost:3333/api/health)",
       "Bash(curl -s --max-time 25 -X POST http://localhost:3333/api/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"admin@empresa.com\",\"senha\":\"admin123\"}')",
       "Bash(curl -s -o /dev/null -w \"frontend HTTP %{http_code}\\\\n\" --max-time 10 http://localhost:5173/)",
-      "Bash(docker --version)"
+      "Bash(docker --version)",
+      "Bash(node -e \"console.log\\(require\\('crypto'\\).randomBytes\\(48\\).toString\\('base64'\\)\\)\")",
+      "Bash(xargs grep -l \"executablePath\")",
+      "Bash(PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable node -e ' *)"
     ]
   }
 }
