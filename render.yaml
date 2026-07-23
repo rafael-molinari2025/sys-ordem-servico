@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: sys-dezesseis-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 12h
+      - key: FRONTEND_URL
+        sync: false
+      - key: WHATSAPP_SESSION_PATH
+        value: /app/backend/whatsapp-session
