@@ -1,0 +1,203 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PerfilUsuario {
+  ADMIN
+  ATENDENTE
+}
+
+model Empresa {
+  id           String   @id
+  nome         String   @default("Minha Empresa")
+  logoUrl      String?
+  telefone     String?
+  endereco     String?
+  cnpj         String?
+  atualizadoEm DateTime @updatedAt
+}
+
+model Usuario {
+  id        String        @id @default(cuid())
+  nome      String
+  email     String        @unique
+  senhaHash String
+  perfil    PerfilUsuario @default(ATENDENTE)
+  ativo     Boolean       @default(true)
+  criadoEm  DateTime      @default(now())
+
+  ordensComoResponsavel OrdemServico[]        @relation("Responsavel")
+  movimentacoes         MovimentacaoEstoque[]
+  statusHistoricos      StatusHistorico[]
+}
+
+model Cliente {
+  id           String   @id @default(cuid())
+  nome         String
+  telefone     String
+  documento    String?
+  email        String?
+  endereco     String?
+  observacoes  String?
+  ativo        Boolean  @default(true)
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  ordens OrdemServico[]
+
+  @@index([nome])
+  @@index([telefone])
+}
+
+model Peca {
+  id            String   @id @default(cuid())
+  nome          String
+  sku           String   @unique
+  quantidade    Int      @default(0)
+  precoCusto    Decimal  @db.Decimal(10, 2)
+  precoVenda    Decimal  @db.Decimal(10, 2)
+  estoqueMinimo Int      @default(0)
+  fornecedor    String?
+  ativo         Boolean  @default(true)
+  criadoEm      DateTime @default(now())
+  atualizadoEm  DateTime @updatedAt
+
+  movimentacoes MovimentacaoEstoque[]
+  itensUsados   OrdemServicoItem[]
+
+  @@index([nome])
+}
+
+enum TipoMovimentacao {
+  ENTRADA
+  SAIDA
+  AJUSTE
+}
+
+model MovimentacaoEstoque {
+  id             String           @id @default(cuid())
+  peca           Peca             @relation(fields: [pecaId], references: [id])
+  pecaId         String
+  tipo           TipoMovimentacao
+  quantidade     Int
+  saldoApos      Int
+  motivo         String?
+  ordemServico   OrdemServico?    @relation(fields: [ordemServicoId], references: [id])
+  ordemServicoId String?
+  usuario        Usuario?         @relation(fields: [usuarioId], references: [id])
+  usuarioId      String?
+  criadoEm       DateTime         @default(now())
+
+  @@index([pecaId, criadoEm])
+}
+
+model Servico {
+  id          String   @id @default(cuid())
+  nome        String
+  descricao   String?
+  precoPadrao Decimal  @db.Decimal(10, 2)
+  ativo       Boolean  @default(true)
+  criadoEm    DateTime @default(now())
+
+  itensUsados OrdemServicoServico[]
+}
+
+enum StatusOS {
+  ORCAMENTO
+  AGUARDANDO_APROVACAO
+  APROVADO
+  RECUSADO
+  EM_ANDAMENTO
+  CONCLUIDO
+  ENTREGUE
+  CANCELADO
+}
+
+model OrdemServico {
+  id              String    @id @default(cuid())
+  numero          Int       @unique @default(autoincrement())
+  cliente         Cliente   @relation(fields: [clienteId], references: [id])
+  clienteId       String
+  itemDescricao   String
+  itemMarca       String?
+  itemModelo      String?
+  itemNumeroSerie String?
+  status          StatusOS  @default(ORCAMENTO)
+  responsavel     Usuario?  @relation("Responsavel", fields: [responsavelId], references: [id])
+  responsavelId   String?
+  desconto        Decimal   @default(0) @db.Decimal(10, 2)
+  observacoes     String?
+  dataAbertura    DateTime  @default(now())
+  dataPrevisao    DateTime?
+  dataConclusao   DateTime?
+  dataEntrega     DateTime?
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime  @updatedAt
+
+  itens              OrdemServicoItem[]
+  servicosRealizados OrdemServicoServico[]
+  historicoStatus    StatusHistorico[]
+  movimentacoes      MovimentacaoEstoque[]
+  autorizacoes       OrcamentoAutorizacao[]
+
+  @@index([status])
+  @@index([clienteId])
+}
+
+model OrdemServicoItem {
+  id             String       @id @default(cuid())
+  ordemServico   OrdemServico @relation(fields: [ordemServicoId], references: [id], onDelete: Cascade)
+  ordemServicoId String
+  peca           Peca         @relation(fields: [pecaId], references: [id])
+  pecaId         String
+  quantidade     Int
+  precoUnitario  Decimal      @db.Decimal(10, 2)
+  criadoEm       DateTime     @default(now())
+}
+
+model OrdemServicoServico {
+  id             String       @id @default(cuid())
+  ordemServico   OrdemServico @relation(fields: [ordemServicoId], references: [id], onDelete: Cascade)
+  ordemServicoId String
+  servico        Servico      @relation(fields: [servicoId], references: [id])
+  servicoId      String
+  valor          Decimal      @db.Decimal(10, 2)
+  observacao     String?
+  criadoEm       DateTime     @default(now())
+}
+
+model StatusHistorico {
+  id             String       @id @default(cuid())
+  ordemServico   OrdemServico @relation(fields: [ordemServicoId], references: [id], onDelete: Cascade)
+  ordemServicoId String
+  statusAnterior StatusOS?
+  statusNovo     StatusOS
+  usuario        Usuario?     @relation(fields: [usuarioId], references: [id])
+  usuarioId      String?
+  observacao     String?
+  criadoEm       DateTime     @default(now())
+}
+
+enum DecisaoOrcamento {
+  APROVADO
+  RECUSADO
+}
+
+model OrcamentoAutorizacao {
+  id             String            @id @default(cuid())
+  ordemServico   OrdemServico      @relation(fields: [ordemServicoId], references: [id], onDelete: Cascade)
+  ordemServicoId String
+  token          String            @unique
+  expiraEm       DateTime?
+  decisao        DecisaoOrcamento?
+  decididoEm     DateTime?
+  ipDecisao      String?
+  criadoEm       DateTime          @default(now())
+
+  @@index([token])
+}

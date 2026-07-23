@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-app text-gray-200;
+}
+
+::selection {
+  @apply bg-cyan-500/30 text-gray-100;
+}
