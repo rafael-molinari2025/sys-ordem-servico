@@ -58,7 +58,8 @@
       "Bash(docker --version)",
       "Bash(node -e \"console.log\\(require\\('crypto'\\).randomBytes\\(48\\).toString\\('base64'\\)\\)\")",
       "Bash(xargs grep -l \"executablePath\")",
-      "Bash(PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable node -e ' *)"
+      "Bash(PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable node -e ' *)",
+      "Bash(git filter-repo *)"
     ]
   }
 }

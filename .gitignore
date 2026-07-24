@@ -11,3 +11,5 @@ backend/.wwebjs_auth/
 backend/prisma/dev.db
 coverage/
 *.tsbuildinfo
+
+.vercel
