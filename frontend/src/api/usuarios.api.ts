@@ -4,6 +4,7 @@ import { api } from "./client";
 export interface UsuarioInput {
   nome: string;
   email: string;
+  telefone?: string;
   senha?: string;
   perfil: PerfilUsuario;
 }

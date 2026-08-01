@@ -5,7 +5,7 @@ import { apiErrorMessage } from "../../api/client";
 import { atualizarUsuario, criarUsuario, listarUsuarios, removerUsuario } from "../../api/usuarios.api";
 import { useAuth } from "../../auth/AuthContext";
 
-const vazio = { nome: "", email: "", senha: "", perfil: PerfilUsuario.ATENDENTE };
+const vazio = { nome: "", email: "", telefone: "", senha: "", perfil: PerfilUsuario.ATENDENTE };
 const inputClasses =
   "w-full rounded border border-line bg-app px-3 py-2 text-sm text-gray-200 placeholder:text-gray-600 focus:border-cyan-400 focus:outline-none";
 
@@ -42,7 +42,7 @@ export function UsuariosPage() {
 
   function iniciarEdicao(u: UsuarioDTO) {
     setEditandoId(u.id);
-    setForm({ nome: u.nome, email: u.email, senha: "", perfil: u.perfil });
+    setForm({ nome: u.nome, email: u.email, telefone: u.telefone ?? "", senha: "", perfil: u.perfil });
     setMostrarForm(true);
   }
 
@@ -87,6 +87,16 @@ export function UsuariosPage() {
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               className={inputClasses}
             />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-400">Telefone (WhatsApp)</label>
+            <input
+              value={form.telefone}
+              onChange={(e) => setForm({ ...form, telefone: e.target.value })}
+              className={inputClasses}
+              placeholder="5511999999999"
+            />
+            <p className="mt-1 text-xs text-gray-600">Usado para receber o link de "esqueci minha senha".</p>
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-400">

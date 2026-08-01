@@ -8,8 +8,10 @@ import { ClientesListPage } from "./pages/clientes/ClientesListPage";
 import { EmpresaPage } from "./pages/configuracoes/EmpresaPage";
 import { WhatsappStatusPage } from "./pages/configuracoes/WhatsappStatusPage";
 import { DashboardPage } from "./pages/DashboardPage";
+import { EsqueciSenhaPage } from "./pages/EsqueciSenhaPage";
 import { PecasListPage } from "./pages/estoque/PecasListPage";
 import { LoginPage } from "./pages/LoginPage";
+import { RedefinirSenhaPage } from "./pages/RedefinirSenhaPage";
 import { OrcamentoAutorizacaoPage } from "./pages/orcamento/OrcamentoAutorizacaoPage";
 import { OrdemCreatePage } from "./pages/ordens/OrdemCreatePage";
 import { OrdemDetailPage } from "./pages/ordens/OrdemDetailPage";
@@ -22,6 +24,8 @@ export function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/esqueci-senha" element={<EsqueciSenhaPage />} />
+      <Route path="/redefinir-senha/:token" element={<RedefinirSenhaPage />} />
 
       <Route element={<PublicLayout />}>
         <Route path="/autorizacao/:token" element={<OrcamentoAutorizacaoPage />} />

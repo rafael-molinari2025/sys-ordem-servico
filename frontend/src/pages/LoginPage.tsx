@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { apiErrorMessage } from "../api/client";
 
@@ -60,10 +60,15 @@ export function LoginPage() {
         <button
           type="submit"
           disabled={enviando}
-          className="w-full rounded bg-indigo-600 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50"
+          className="mb-4 w-full rounded bg-indigo-600 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50"
         >
           {enviando ? "Entrando..." : "Entrar"}
         </button>
+        <div className="text-center">
+          <Link to="/esqueci-senha" className="text-sm font-medium text-cyan-400 hover:text-cyan-300">
+            Esqueci minha senha
+          </Link>
+        </div>
       </form>
     </div>
   );

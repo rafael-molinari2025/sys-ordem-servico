@@ -43,3 +43,12 @@ export async function sendOrcamento(
   await delay(1200);
   await whatsappClient.sendMessage(chatId, `${mensagem}\n\n${linkAutorizacao}`);
 }
+
+/** Envia uma mensagem de texto simples (ex.: link de redefinição de senha). */
+export async function sendTexto(telefone: string, mensagem: string): Promise<void> {
+  if (!isWhatsAppConnected()) {
+    throw new WhatsAppNaoConectadoError();
+  }
+  const chatId = await resolveChatId(telefone);
+  await whatsappClient.sendMessage(chatId, mensagem);
+}

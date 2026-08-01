@@ -7,12 +7,14 @@ import * as usuariosService from "./usuarios.service";
 const criarSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório"),
   email: z.string().email("E-mail inválido"),
+  telefone: z.string().optional(),
   senha: z.string().min(6, "A senha deve ter ao menos 6 caracteres"),
   perfil: z.nativeEnum(PerfilUsuario, { errorMap: () => ({ message: "Perfil inválido" }) }),
 });
 
 const atualizarSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório").optional(),
+  telefone: z.string().optional(),
   perfil: z.nativeEnum(PerfilUsuario, { errorMap: () => ({ message: "Perfil inválido" }) }).optional(),
   ativo: z.boolean().optional(),
   senha: z.string().min(6, "A senha deve ter ao menos 6 caracteres").optional(),

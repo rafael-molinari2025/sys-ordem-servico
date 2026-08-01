@@ -26,6 +26,7 @@ model Usuario {
   id        String        @id @default(cuid())
   nome      String
   email     String        @unique
+  telefone  String?
   senhaHash String
   perfil    PerfilUsuario @default(ATENDENTE)
   ativo     Boolean       @default(true)
@@ -34,6 +35,19 @@ model Usuario {
   ordensComoResponsavel OrdemServico[]        @relation("Responsavel")
   movimentacoes         MovimentacaoEstoque[]
   statusHistoricos      StatusHistorico[]
+  redefinicoesSenha     RedefinicaoSenha[]
+}
+
+model RedefinicaoSenha {
+  id       String    @id @default(cuid())
+  usuario  Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  usuarioId String
+  token    String    @unique
+  expiraEm DateTime
+  usadoEm  DateTime?
+  criadoEm DateTime  @default(now())
+
+  @@index([token])
 }
 
 model Cliente {

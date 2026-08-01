@@ -4,6 +4,7 @@ export interface UsuarioDTO {
   id: string;
   nome: string;
   email: string;
+  telefone?: string | null;
   perfil: PerfilUsuario;
   ativo: boolean;
 }
@@ -16,6 +17,18 @@ export interface LoginRequest {
 export interface LoginResponse {
   token: string;
   usuario: UsuarioDTO;
+}
+
+export interface EsqueciSenhaRequest {
+  email: string;
+}
+
+export interface RedefinirSenhaRequest {
+  novaSenha: string;
+}
+
+export interface ValidarTokenRedefinicaoDTO {
+  valido: boolean;
 }
 
 export interface ClienteDTO {
