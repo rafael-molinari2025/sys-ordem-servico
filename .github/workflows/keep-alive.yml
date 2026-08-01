@@ -18,4 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping /api/health
-        run: curl -sf --max-time 90 https://sys-dezesseis-backend.onrender.com/api/health
+        # --retry cobre o caso raro de um cold start mais lento que o normal estourar o
+        # primeiro timeout (o proprio wake-up ja fica em andamento, entao a 2a tentativa
+        # tende a ser rapida).
+        run: curl -sf --max-time 120 --retry 1 --retry-delay 5 https://sys-dezesseis-backend.onrender.com/api/health
