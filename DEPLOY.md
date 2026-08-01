@@ -46,11 +46,19 @@ apontando para o backend por HTTPS. Banco de dados: continua o mesmo Postgres na
 ### Sobre o "dormir" por inatividade
 
 O free tier do Render derruba o processo após ~15 min sem requisições e a primeira
-requisição seguinte demora mais (cold start, ~30-60s) enquanto ele sobe de novo. Isso é
-aceitável para uso interno de baixo tráfego, mas se quiser evitar o cold start (sem
-resolver a perda de sessão do WhatsApp, que é sobre disco, não sobre estar dormindo) dá
-pra configurar um serviço externo de "ping" a cada 10 min no `/api/health` — não é algo
-que eu configure por padrão porque é mais uma camada de infraestrutura para manter.
+requisição seguinte demora mais (cold start, ~30-60s, podendo passar de 1 min) enquanto
+ele sobe de novo — na prática, a primeira ação de quem acessa o sistema depois de um
+tempo parado (ex.: salvar um cadastro) fica presa esperando o container acordar.
+
+`.github/workflows/keep-alive.yml` mitiga isso: um workflow do GitHub Actions faz um
+`curl` no `/api/health` a cada 10 minutos, mantendo o backend sempre desperto na maior
+parte do tempo. Isso **não resolve** a perda de sessão do WhatsApp (que é sobre disco
+não persistente, não sobre estar dormindo — ver aviso no topo) e não é 100% garantido:
+o GitHub só promete rodar o cron "aproximadamente" no horário (pode atrasar em picos de
+carga da plataforma) e **desativa automaticamente workflows agendados após 60 dias sem
+nenhuma atividade no repositório** — se o sistema voltar a ficar lento do nada depois de
+um período parado, confira em Actions → keep-alive se o workflow ainda está ativo (um
+commit qualquer ou clicar em "Enable workflow" reativa).
 
 ## 2. Frontend (Vercel)
 
