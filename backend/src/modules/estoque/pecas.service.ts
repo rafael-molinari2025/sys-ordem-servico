@@ -31,9 +31,12 @@ export interface PecaInput {
 
 export async function listar(perfil: PerfilUsuario, busca?: string): Promise<PecaDTO[]> {
   const pecas = await prisma.peca.findMany({
-    where: busca
-      ? { OR: [{ nome: { contains: busca, mode: "insensitive" } }, { sku: { contains: busca, mode: "insensitive" } }] }
-      : undefined,
+    where: {
+      ativo: true,
+      ...(busca
+        ? { OR: [{ nome: { contains: busca, mode: "insensitive" } }, { sku: { contains: busca, mode: "insensitive" } }] }
+        : {}),
+    },
     orderBy: { nome: "asc" },
   });
   return pecas.map((p) => toPecaDTO(p, perfil));

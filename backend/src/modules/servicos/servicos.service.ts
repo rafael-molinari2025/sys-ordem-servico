@@ -22,7 +22,10 @@ export interface ServicoInput {
 
 export async function listar(busca?: string): Promise<ServicoDTO[]> {
   const servicos = await prisma.servico.findMany({
-    where: busca ? { nome: { contains: busca, mode: "insensitive" } } : undefined,
+    where: {
+      ativo: true,
+      ...(busca ? { nome: { contains: busca, mode: "insensitive" } } : {}),
+    },
     orderBy: { nome: "asc" },
   });
   return servicos.map(toDTO);

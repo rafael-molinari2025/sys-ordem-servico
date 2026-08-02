@@ -37,15 +37,18 @@ export interface ClienteInput {
 
 export async function listar(busca?: string): Promise<ClienteDTO[]> {
   const clientes = await prisma.cliente.findMany({
-    where: busca
-      ? {
-          OR: [
-            { nome: { contains: busca, mode: "insensitive" } },
-            { telefone: { contains: busca } },
-            { documento: { contains: busca } },
-          ],
-        }
-      : undefined,
+    where: {
+      ativo: true,
+      ...(busca
+        ? {
+            OR: [
+              { nome: { contains: busca, mode: "insensitive" } },
+              { telefone: { contains: busca } },
+              { documento: { contains: busca } },
+            ],
+          }
+        : {}),
+    },
     orderBy: { nome: "asc" },
   });
   return clientes.map(toDTO);
