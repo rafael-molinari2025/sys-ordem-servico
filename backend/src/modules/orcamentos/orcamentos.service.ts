@@ -10,7 +10,9 @@ import { gerarOuRenovarToken } from "./autorizacao.service";
 export async function gerarPdfOrcamento(ordemServicoId: string): Promise<Buffer> {
   const ordem = await ordensService.buscarPorId(ordemServicoId);
   const empresa = await empresaService.obter();
-  const html = renderOrcamentoHtml(ordem, empresa);
+  const token = await gerarOuRenovarToken(ordemServicoId);
+  const linkAutorizacao = `${env.FRONTEND_URL}/autorizacao/${token}`;
+  const html = renderOrcamentoHtml(ordem, empresa, linkAutorizacao);
   return renderHtmlToPdf(html);
 }
 

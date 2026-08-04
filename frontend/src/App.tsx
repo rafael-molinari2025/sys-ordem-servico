@@ -6,7 +6,6 @@ import { PublicLayout } from "./layout/PublicLayout";
 import { AjudaPage } from "./pages/AjudaPage";
 import { ClientesListPage } from "./pages/clientes/ClientesListPage";
 import { EmpresaPage } from "./pages/configuracoes/EmpresaPage";
-import { WhatsappStatusPage } from "./pages/configuracoes/WhatsappStatusPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { EsqueciSenhaPage } from "./pages/EsqueciSenhaPage";
 import { PecasListPage } from "./pages/estoque/PecasListPage";
@@ -49,7 +48,6 @@ export function App() {
         <Route element={<AppLayout />}>
           <Route path="/configuracoes" element={<Navigate to="/configuracoes/empresa" replace />} />
           <Route path="/configuracoes/empresa" element={<EmpresaPage />} />
-          <Route path="/configuracoes/whatsapp" element={<WhatsappStatusPage />} />
           <Route path="/usuarios" element={<UsuariosPage />} />
         </Route>
       </Route>

@@ -12,7 +12,6 @@ import { servicosRoutes } from "./modules/servicos/servicos.routes";
 import { ordensRoutes } from "./modules/ordens/ordens.routes";
 import { orcamentosRoutes } from "./modules/orcamentos/orcamentos.routes";
 import { autorizacaoPublicaRoutes } from "./modules/orcamentos/autorizacao.public.routes";
-import { whatsappRoutes } from "./modules/whatsapp/whatsapp.routes";
 import { relatoriosRoutes } from "./modules/relatorios/relatorios.routes";
 
 export const app = express();
@@ -48,7 +47,6 @@ app.use("/api/pecas", authMiddleware, pecasRoutes);
 app.use("/api/servicos", authMiddleware, servicosRoutes);
 app.use("/api/ordens", authMiddleware, ordensRoutes);
 app.use("/api/ordens", authMiddleware, orcamentosRoutes);
-app.use("/api/whatsapp", authMiddleware, whatsappRoutes);
 app.use("/api/relatorios", authMiddleware, relatoriosRoutes);
 
 app.use(errorHandler);

@@ -1,11 +1,10 @@
 import { app } from "./app";
 import { env } from "./config/env";
 import { logger } from "./lib/logger";
-import { initWhatsApp } from "./modules/whatsapp/whatsapp.client";
 
-// whatsapp-web.js dispara operações internas (puppeteer) fora do ciclo de request/response
-// que podem rejeitar sem handler (ex.: "auth timeout"); sem isso, o processo Node inteiro
-// derruba a API por causa de uma falha isolada do WhatsApp.
+// Rede de segurança contra rejeições/exceções fora do ciclo de request/response (ex.: operações
+// assíncronas do Puppeteer usado na geração de PDF); sem isso, uma falha isolada derruba o
+// processo Node inteiro e tira a API do ar por causa de algo que não deveria ser fatal.
 process.on("unhandledRejection", (reason) => {
   logger.error("Promise rejeitada sem tratamento:", reason);
 });
@@ -17,5 +16,3 @@ process.on("uncaughtException", (err) => {
 app.listen(env.PORT, () => {
   logger.info(`Backend rodando em http://localhost:${env.PORT}`);
 });
-
-initWhatsApp();

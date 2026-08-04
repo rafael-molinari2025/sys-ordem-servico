@@ -3,7 +3,6 @@ import { FormEvent, useEffect, useState } from "react";
 import { apiErrorMessage } from "../../api/client";
 import { atualizarEmpresa, obterEmpresa } from "../../api/empresa.api";
 import { maskCnpj, maskTelefone } from "../../utils/masks";
-import { ConfiguracoesTabs } from "./ConfiguracoesTabs";
 
 const vazio = { nome: "", logoUrl: "", telefone: "", endereco: "", cnpj: "" };
 const inputClasses =
@@ -50,8 +49,6 @@ export function EmpresaPage() {
     <div className="max-w-lg">
       <h1 className="mb-1 text-2xl font-bold text-gray-100">Configurações</h1>
       <p className="mb-4 text-sm text-gray-500">Dados da empresa exibidos nos PDFs de orçamento e relatórios.</p>
-
-      <ConfiguracoesTabs />
 
       {isLoading ? (
         <p className="text-sm text-gray-600">Carregando...</p>

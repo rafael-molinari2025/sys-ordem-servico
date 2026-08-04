@@ -14,7 +14,7 @@ import {
   removerItem,
   removerServico,
 } from "../../api/ordens.api";
-import { baixarPdfOrcamento, enviarOrcamentoPorWhatsApp } from "../../api/orcamentos.api";
+import { baixarPdfOrcamento } from "../../api/orcamentos.api";
 import { listarServicos } from "../../api/servicos.api";
 import { StatusBadge } from "../../components/StatusBadge";
 
@@ -106,16 +106,8 @@ export function OrdemDetailPage() {
 
   const baixarPdf = useMutation({
     mutationFn: () => baixarPdfOrcamento(id!),
+    onSuccess: () => setErro(null),
     onError: (err) => setErro(apiErrorMessage(err, "Não foi possível gerar o PDF")),
-  });
-
-  const enviarWhatsApp = useMutation({
-    mutationFn: () => enviarOrcamentoPorWhatsApp(id!),
-    onSuccess: () => {
-      invalidar();
-      setErro(null);
-    },
-    onError: (err) => setErro(apiErrorMessage(err, "Não foi possível enviar por WhatsApp")),
   });
 
   if (isLoading) {
@@ -177,16 +169,9 @@ export function OrdemDetailPage() {
             <button
               onClick={() => baixarPdf.mutate()}
               disabled={baixarPdf.isPending}
-              className="rounded border border-line px-3 py-1.5 text-xs font-semibold text-gray-300 hover:bg-white/5 disabled:opacity-50"
-            >
-              {baixarPdf.isPending ? "Gerando..." : "Baixar PDF do orçamento"}
-            </button>
-            <button
-              onClick={() => enviarWhatsApp.mutate()}
-              disabled={enviarWhatsApp.isPending}
               className="rounded bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 disabled:opacity-50"
             >
-              {enviarWhatsApp.isPending ? "Enviando..." : "Enviar orçamento por WhatsApp"}
+              {baixarPdf.isPending ? "Gerando..." : "Baixar PDF do orçamento"}
             </button>
           </div>
         </div>

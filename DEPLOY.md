@@ -4,16 +4,14 @@ Topologia: **backend no Render (free tier)** e **frontend estático no Vercel (f
 apontando para o backend por HTTPS. Banco de dados: continua o mesmo Postgres na nuvem
 (Neon/Supabase) já usado em dev.
 
-> ⚠️ **Limitação aceita conscientemente**: o plano free do Render não oferece disco
-> persistente (isso só existe nos planos pagos) e o serviço "dorme" após ~15 min sem
-> tráfego. Na prática isso significa que a pasta da sessão do WhatsApp
-> (`WHATSAPP_SESSION_PATH`) é apagada **toda vez que o container reinicia** — em cada
-> deploy, cada crash e cada "acordar" após dormir. Ou seja: o QR code do WhatsApp
-> provavelmente vai precisar ser escaneado de novo com frequência em produção. O resto
-> do sistema (login, OS, estoque, PDF de orçamento para download) funciona normalmente
-> e não depende disso — só a automação de *envio* do orçamento por WhatsApp é afetada.
-> Se isso virar um problema no dia a dia, o caminho é migrar o backend para um plano com
-> disco persistente (Render pago, Railway, Fly.io, ou uma VPS/Oracle Cloud Always Free).
+> ℹ️ O plano free do Render não oferece disco persistente e o serviço "dorme" após ~15 min
+> sem tráfego (cold start na próxima requisição, ver seção abaixo). Isso não afeta nada
+> hoje: a automação de envio de orçamento por WhatsApp foi desativada (ver `CLAUDE.md`)
+> justamente por ter se mostrado pouco confiável nesse ambiente — falhas de pareamento e
+> a própria sessão sendo encerrada pelo WhatsApp após poucas tentativas de conexão a
+> partir de um IP de datacenter, competindo por memória com o Chromium usado na geração
+> de PDF. O sistema hoje entrega o orçamento sempre via **PDF para baixar e enviar
+> manualmente** (o PDF já inclui o link de aprovação do cliente).
 
 ## 1. Backend (Render)
 
@@ -36,11 +34,7 @@ apontando para o backend por HTTPS. Banco de dados: continua o mesmo Postgres na
    padrão no `render.yaml`. `PORT` é injetado automaticamente pelo Render.
 4. Deploy. O `CMD` do Dockerfile roda `prisma migrate deploy` antes de subir o servidor,
    então as migrações do banco de produção são aplicadas automaticamente a cada deploy.
-5. Depois do deploy, abra os logs do serviço no Render e escaneie o QR code do WhatsApp
-   (também aparece em `/configuracoes/whatsapp` no app, uma vez que o frontend estiver no
-   ar). Lembre-se: vai precisar repetir isso sempre que o container reiniciar (ver aviso
-   acima).
-6. Anote a URL pública gerada pelo Render (algo como `https://sys-dezesseis-backend.onrender.com`)
+5. Anote a URL pública gerada pelo Render (algo como `https://sys-dezesseis-backend.onrender.com`)
    — é o valor de `VITE_API_URL` no passo do frontend.
 
 ### Sobre o "dormir" por inatividade
@@ -52,13 +46,12 @@ tempo parado (ex.: salvar um cadastro) fica presa esperando o container acordar.
 
 `.github/workflows/keep-alive.yml` mitiga isso: um workflow do GitHub Actions faz um
 `curl` no `/api/health` a cada 10 minutos, mantendo o backend sempre desperto na maior
-parte do tempo. Isso **não resolve** a perda de sessão do WhatsApp (que é sobre disco
-não persistente, não sobre estar dormindo — ver aviso no topo) e não é 100% garantido:
-o GitHub só promete rodar o cron "aproximadamente" no horário (pode atrasar em picos de
-carga da plataforma) e **desativa automaticamente workflows agendados após 60 dias sem
-nenhuma atividade no repositório** — se o sistema voltar a ficar lento do nada depois de
-um período parado, confira em Actions → keep-alive se o workflow ainda está ativo (um
-commit qualquer ou clicar em "Enable workflow" reativa).
+parte do tempo. Não é 100% garantido: o GitHub só promete rodar o cron
+"aproximadamente" no horário (pode atrasar em picos de carga da plataforma) e
+**desativa automaticamente workflows agendados após 60 dias sem nenhuma atividade no
+repositório** — se o sistema voltar a ficar lento do nada depois de um período parado,
+confira em Actions → keep-alive se o workflow ainda está ativo (um commit qualquer ou
+clicar em "Enable workflow" reativa).
 
 ## 2. Frontend (Vercel)
 
@@ -79,14 +72,13 @@ commit qualquer ou clicar em "Enable workflow" reativa).
 - [ ] `DATABASE_URL` aponta para o Postgres de produção (não o de dev)
 - [ ] `FRONTEND_URL` no backend lista exatamente os domínios do frontend em produção
 - [ ] `VITE_API_URL` no frontend aponta pro domínio HTTPS do backend em produção
-- [ ] QR code do WhatsApp escaneado no ambiente de produção (sessão não é a mesma da sua máquina de dev, e some a cada restart no free tier — ver aviso no topo)
 - [ ] Criado ao menos um usuário Admin real no banco de produção (a seed é só para dev/demo)
 
 ## Notas
 
-- `orcamentos.service.ts` sempre expõe o PDF para download independente do WhatsApp estar
-  conectado — então mesmo com o WhatsApp caindo/desconectando em produção (ver aviso sobre
-  disco não persistente), o core do sistema continua funcionando; só a automação de envio
-  fica indisponível até reconectar e escanear o QR de novo.
+- A entrega de orçamento é só via **PDF para baixar e enviar manualmente** — o botão
+  "Baixar PDF do orçamento" sempre funciona e já inclui o link de aprovação do cliente.
+  O envio automático por WhatsApp foi desativado (ver `CLAUDE.md`, seção "WhatsApp
+  automation was disabled").
 - Existe também `railway.json` no repo, caso decidam migrar o backend para o Railway (ou
   outro serviço com disco persistente) no futuro — usa o mesmo `backend/Dockerfile`.
