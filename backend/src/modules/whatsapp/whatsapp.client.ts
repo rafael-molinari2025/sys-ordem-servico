@@ -15,6 +15,15 @@ export const whatsappClient = new Client({
     headless: true,
     args: ["--no-sandbox"],
   },
+  // A versão do WhatsApp Web empacotada no whatsapp-web.js fica desatualizada entre releases da
+  // lib (o WhatsApp muda o protocolo do lado web com frequência), o que faz o pareamento do QR
+  // falhar com "não foi possível conectar o dispositivo" no celular mesmo com o QR sendo escaneado
+  // corretamente. Buscar a versão mais recente testada de um cache remoto mantido pela comunidade
+  // evita depender da versão fixa que veio junto com a lib na hora da instalação.
+  webVersionCache: {
+    type: "remote",
+    remotePath: "https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1044431423-alpha.html",
+  },
 });
 
 whatsappClient.on("qr", async (qr) => {
