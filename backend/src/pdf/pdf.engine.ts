@@ -2,10 +2,28 @@ import puppeteer, { Browser } from "puppeteer";
 
 let browserPromise: Promise<Browser> | null = null;
 
-/** Mantém um único Chromium "quente" no processo (evita o custo de ~1-2s de lançar o browser a cada PDF). */
+/**
+ * Mantém um único Chromium "quente" no processo (evita o custo de ~1-2s de lançar o browser a cada PDF).
+ * Se o launch falhar (ex.: pressão de memória no free tier do Render, competindo com o Chromium do
+ * WhatsApp) ou o browser cair depois de já conectado, a promise em cache é limpa para que a próxima
+ * chamada tente relançar — sem esse reset, uma única falha transitória deixa a geração de PDF (e,
+ * por consequência, o envio de orçamento por WhatsApp, que gera o PDF antes de enviar) quebrada de
+ * forma permanente até o processo reiniciar.
+ */
 function getBrowser(): Promise<Browser> {
   if (!browserPromise) {
-    browserPromise = puppeteer.launch({ headless: true, args: ["--no-sandbox"] });
+    browserPromise = puppeteer
+      .launch({ headless: true, args: ["--no-sandbox"] })
+      .then((browser) => {
+        browser.once("disconnected", () => {
+          browserPromise = null;
+        });
+        return browser;
+      })
+      .catch((err) => {
+        browserPromise = null;
+        throw err;
+      });
   }
   return browserPromise;
 }
