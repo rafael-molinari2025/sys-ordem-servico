@@ -9,6 +9,7 @@ const pecaSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório"),
   sku: z.string().min(1, "SKU é obrigatório"),
   quantidade: z.number().int().min(0).default(0),
+  sobEncomenda: z.boolean().default(false),
   precoCusto: z.number().min(0),
   precoVenda: z.number().min(0),
   estoqueMinimo: z.number().int().min(0).default(0),

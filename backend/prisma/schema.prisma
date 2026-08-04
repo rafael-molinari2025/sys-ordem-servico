@@ -73,6 +73,7 @@ model Peca {
   nome          String
   sku           String   @unique
   quantidade    Int      @default(0)
+  sobEncomenda  Boolean  @default(false)
   precoCusto    Decimal  @db.Decimal(10, 2)
   precoVenda    Decimal  @db.Decimal(10, 2)
   estoqueMinimo Int      @default(0)

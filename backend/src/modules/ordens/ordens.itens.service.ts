@@ -18,14 +18,16 @@ export async function adicionarItem(
     const peca = await tx.peca.findUnique({ where: { id: input.pecaId } });
     if (!peca) throw new NotFoundError("Peça não encontrada");
 
-    await aplicarMovimentacao(tx, {
-      pecaId: input.pecaId,
-      tipo: TipoMovimentacao.SAIDA,
-      quantidade: input.quantidade,
-      motivo: `Uso na OS #${ordem.numero}`,
-      ordemServicoId,
-      usuarioId,
-    });
+    if (!peca.sobEncomenda) {
+      await aplicarMovimentacao(tx, {
+        pecaId: input.pecaId,
+        tipo: TipoMovimentacao.SAIDA,
+        quantidade: input.quantidade,
+        motivo: `Uso na OS #${ordem.numero}`,
+        ordemServicoId,
+        usuarioId,
+      });
+    }
 
     await tx.ordemServicoItem.create({
       data: {
@@ -52,14 +54,17 @@ export async function removerItem(ordemServicoId: string, itemId: string, usuari
   if (!item) throw new NotFoundError("Item não encontrado nesta OS");
 
   await prisma.$transaction(async (tx) => {
-    await aplicarMovimentacao(tx, {
-      pecaId: item.pecaId,
-      tipo: TipoMovimentacao.ENTRADA,
-      quantidade: item.quantidade,
-      motivo: `Estorno de remoção de item na OS #${ordem.numero}`,
-      ordemServicoId,
-      usuarioId,
-    });
+    const peca = await tx.peca.findUnique({ where: { id: item.pecaId } });
+    if (peca && !peca.sobEncomenda) {
+      await aplicarMovimentacao(tx, {
+        pecaId: item.pecaId,
+        tipo: TipoMovimentacao.ENTRADA,
+        quantidade: item.quantidade,
+        motivo: `Estorno de remoção de item na OS #${ordem.numero}`,
+        ordemServicoId,
+        usuarioId,
+      });
+    }
     await tx.ordemServicoItem.delete({ where: { id: itemId } });
   });
 

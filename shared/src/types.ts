@@ -48,6 +48,7 @@ export interface PecaDTO {
   nome: string;
   sku: string;
   quantidade: number;
+  sobEncomenda: boolean; // true = comprada sob demanda, sem controle de estoque (quantidade não é validada/deduzida)
   precoCusto?: number | null; // ausente para perfil ATENDENTE
   precoVenda: number;
   estoqueMinimo: number;

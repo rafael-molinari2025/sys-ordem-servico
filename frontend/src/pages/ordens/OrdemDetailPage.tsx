@@ -266,7 +266,7 @@ export function OrdemDetailPage() {
                   <option value="">Selecione...</option>
                   {pecas?.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.nome} (estoque: {p.quantidade})
+                      {p.nome} ({p.sobEncomenda ? "sob encomenda" : `estoque: ${p.quantidade}`})
                     </option>
                   ))}
                 </select>

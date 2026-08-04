@@ -11,6 +11,7 @@ export function toPecaDTO(peca: Peca, perfil: PerfilUsuario): PecaDTO {
     nome: peca.nome,
     sku: peca.sku,
     quantidade: peca.quantidade,
+    sobEncomenda: peca.sobEncomenda,
     precoCusto: perfil === PerfilUsuario.ADMIN ? toMoneyNumber(peca.precoCusto) : undefined,
     precoVenda: toMoneyNumber(peca.precoVenda),
     estoqueMinimo: peca.estoqueMinimo,
@@ -23,6 +24,7 @@ export interface PecaInput {
   nome: string;
   sku: string;
   quantidade: number;
+  sobEncomenda?: boolean;
   precoCusto: number;
   precoVenda: number;
   estoqueMinimo: number;
@@ -43,7 +45,7 @@ export async function listar(perfil: PerfilUsuario, busca?: string): Promise<Pec
 }
 
 export async function baixoEstoque(perfil: PerfilUsuario): Promise<PecaDTO[]> {
-  const pecas = await prisma.peca.findMany({ where: { ativo: true } });
+  const pecas = await prisma.peca.findMany({ where: { ativo: true, sobEncomenda: false } });
   return pecas.filter((p) => p.quantidade <= p.estoqueMinimo).map((p) => toPecaDTO(p, perfil));
 }
 

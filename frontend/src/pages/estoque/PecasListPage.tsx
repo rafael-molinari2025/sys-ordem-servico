@@ -5,7 +5,16 @@ import { apiErrorMessage } from "../../api/client";
 import { atualizarPeca, criarMovimentacao, criarPeca, listarPecas, removerPeca } from "../../api/estoque.api";
 import { useAuth } from "../../auth/AuthContext";
 
-const vazio = { nome: "", sku: "", quantidade: 0, precoCusto: 0, precoVenda: 0, estoqueMinimo: 0, fornecedor: "" };
+const vazio = {
+  nome: "",
+  sku: "",
+  quantidade: 0,
+  sobEncomenda: false,
+  precoCusto: 0,
+  precoVenda: 0,
+  estoqueMinimo: 0,
+  fornecedor: "",
+};
 const inputClasses =
   "w-full rounded border border-line bg-app px-3 py-2 text-sm text-gray-200 placeholder:text-gray-600 focus:border-cyan-400 focus:outline-none";
 const inputSmClasses =
@@ -60,6 +69,7 @@ export function PecasListPage() {
       nome: peca.nome,
       sku: peca.sku,
       quantidade: peca.quantidade,
+      sobEncomenda: peca.sobEncomenda,
       precoCusto: peca.precoCusto ?? 0,
       precoVenda: peca.precoVenda,
       estoqueMinimo: peca.estoqueMinimo,
@@ -117,9 +127,23 @@ export function PecasListPage() {
               value={form.quantidade}
               onChange={(e) => setForm({ ...form, quantidade: Number(e.target.value) })}
               className={`${inputClasses} disabled:opacity-40`}
-              disabled={!!editandoId}
-              title={editandoId ? "Use 'Movimentar' para alterar a quantidade" : undefined}
+              disabled={!!editandoId || form.sobEncomenda}
+              title={
+                form.sobEncomenda
+                  ? "Peças sob encomenda não têm controle de estoque"
+                  : editandoId
+                    ? "Use 'Movimentar' para alterar a quantidade"
+                    : undefined
+              }
             />
+            <label className="mt-2 flex items-center gap-2 text-sm text-gray-400">
+              <input
+                type="checkbox"
+                checked={form.sobEncomenda}
+                onChange={(e) => setForm({ ...form, sobEncomenda: e.target.checked, quantidade: e.target.checked ? 0 : form.quantidade })}
+              />
+              Sob encomenda (sem controle de estoque)
+            </label>
           </div>
           {isAdmin && (
             <div>
@@ -211,23 +235,29 @@ export function PecasListPage() {
                   <td className="px-4 py-3 font-medium text-gray-200">{p.nome}</td>
                   <td className="px-4 py-3">{p.sku}</td>
                   <td className="px-4 py-3">
-                    <span
-                      className={`rounded px-2 py-0.5 text-xs font-semibold ${
-                        p.quantidade <= p.estoqueMinimo ? "bg-amber-500/15 text-amber-300" : "bg-gray-500/15 text-gray-300"
-                      }`}
-                    >
-                      {p.quantidade}
-                    </span>
+                    {p.sobEncomenda ? (
+                      <span className="rounded px-2 py-0.5 text-xs font-semibold bg-cyan-500/15 text-cyan-300">Sob encomenda</span>
+                    ) : (
+                      <span
+                        className={`rounded px-2 py-0.5 text-xs font-semibold ${
+                          p.quantidade <= p.estoqueMinimo ? "bg-amber-500/15 text-amber-300" : "bg-gray-500/15 text-gray-300"
+                        }`}
+                      >
+                        {p.quantidade}
+                      </span>
+                    )}
                   </td>
                   {isAdmin && <td className="px-4 py-3">R$ {p.precoCusto?.toFixed(2)}</td>}
                   <td className="px-4 py-3">R$ {p.precoVenda.toFixed(2)}</td>
                   <td className="whitespace-nowrap px-4 py-3 text-right">
-                    <button
-                      onClick={() => setMovimentandoId(movimentandoId === p.id ? null : p.id)}
-                      className="mr-3 text-xs font-medium text-cyan-400 hover:text-cyan-300"
-                    >
-                      Movimentar
-                    </button>
+                    {!p.sobEncomenda && (
+                      <button
+                        onClick={() => setMovimentandoId(movimentandoId === p.id ? null : p.id)}
+                        className="mr-3 text-xs font-medium text-cyan-400 hover:text-cyan-300"
+                      >
+                        Movimentar
+                      </button>
+                    )}
                     <button onClick={() => iniciarEdicao(p)} className="mr-3 text-xs font-medium text-cyan-400 hover:text-cyan-300">
                       Editar
                     </button>
