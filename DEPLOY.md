@@ -44,14 +44,17 @@ requisição seguinte demora mais (cold start, ~30-60s, podendo passar de 1 min)
 ele sobe de novo — na prática, a primeira ação de quem acessa o sistema depois de um
 tempo parado (ex.: salvar um cadastro) fica presa esperando o container acordar.
 
-`.github/workflows/keep-alive.yml` mitiga isso: um workflow do GitHub Actions faz um
-`curl` no `/api/health` a cada 10 minutos, mantendo o backend sempre desperto na maior
-parte do tempo. Não é 100% garantido: o GitHub só promete rodar o cron
-"aproximadamente" no horário (pode atrasar em picos de carga da plataforma) e
-**desativa automaticamente workflows agendados após 60 dias sem nenhuma atividade no
-repositório** — se o sistema voltar a ficar lento do nada depois de um período parado,
-confira em Actions → keep-alive se o workflow ainda está ativo (um commit qualquer ou
-clicar em "Enable workflow" reativa).
+Isso é mitigado por um **monitor externo do UptimeRobot** (conta separada, fora deste
+repositório) que faz um ping em `/api/health` a cada 5 minutos, mantendo o backend
+sempre desperto na prática. Esse é o segundo mecanismo tentado para isso — o primeiro
+foi um workflow do GitHub Actions (`.github/workflows/keep-alive.yml`, já removido)
+configurado para rodar a cada 10 minutos, mas que na prática só disparava a cada
+1h30–2h30 (medido via `gh api .../actions/runs`), porque o agendador do GitHub Actions
+não é confiável para intervalos curtos (menos de 1h), independente da configuração no
+YAML. Se o sistema voltar a ficar lento do nada, o primeiro lugar a checar é se o
+monitor do UptimeRobot continua ativo (login em uptimerobot.com) — não vai aparecer
+nada sobre isso no histórico do Git ou do GitHub Actions, já que é externo ao
+repositório.
 
 ## 2. Frontend (Vercel)
 
