@@ -5,7 +5,11 @@ import * as empresaService from "./empresa.service";
 
 const atualizarSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório").optional(),
-  logoUrl: z.string().url("URL do logo inválida").optional().or(z.literal("")),
+  logoUrl: z
+    .string()
+    .regex(/^data:image\/(png|jpe?g|webp|gif|svg\+xml);base64,/, "Logo deve ser uma imagem enviada pelo formulário")
+    .optional()
+    .or(z.literal("")),
   telefone: z.string().optional(),
   endereco: z.string().optional(),
   cnpj: z.string().optional(),

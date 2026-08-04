@@ -2,6 +2,8 @@ import { EmpresaDTO } from "shared";
 
 /** Layout HTML compartilhado por todos os documentos PDF (orçamentos e relatórios). */
 export function wrapInLayout(titulo: string, bodyHtml: string, empresa: EmpresaDTO): string {
+  const infoEmpresa = [empresa.telefone, empresa.cnpj ? `CNPJ: ${empresa.cnpj}` : null].filter(Boolean).join(" · ");
+
   return `<!doctype html>
 <html lang="pt-BR">
 <head>
@@ -26,6 +28,7 @@ export function wrapInLayout(titulo: string, bodyHtml: string, empresa: EmpresaD
   .cabecalho .empresa { display: flex; align-items: center; gap: 10px; }
   .cabecalho img { max-height: 48px; }
   .cabecalho h1 { font-size: 18px; margin: 0; }
+  .cabecalho .empresa-info { margin: 2px 0 0; font-size: 11px; color: #64748b; }
   .cabecalho .titulo-doc { text-align: right; }
   .cabecalho .titulo-doc h2 { margin: 0; font-size: 16px; }
   .cabecalho .titulo-doc span { color: #64748b; font-size: 12px; }
@@ -46,7 +49,10 @@ export function wrapInLayout(titulo: string, bodyHtml: string, empresa: EmpresaD
   <div class="cabecalho">
     <div class="empresa">
       ${empresa.logoUrl ? `<img src="${empresa.logoUrl}" alt="Logo" />` : ""}
-      <h1>${empresa.nome}</h1>
+      <div>
+        <h1>${empresa.nome}</h1>
+        ${infoEmpresa ? `<p class="empresa-info">${infoEmpresa}</p>` : ""}
+      </div>
     </div>
     <div class="titulo-doc">${titulo}</div>
   </div>

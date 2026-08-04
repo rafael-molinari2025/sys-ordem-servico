@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { apiErrorMessage } from "../../api/client";
 import { atualizarEmpresa, obterEmpresa } from "../../api/empresa.api";
 import { maskCnpj, maskTelefone } from "../../utils/masks";
@@ -7,6 +7,16 @@ import { maskCnpj, maskTelefone } from "../../utils/masks";
 const vazio = { nome: "", logoUrl: "", telefone: "", endereco: "", cnpj: "" };
 const inputClasses =
   "w-full rounded border border-line bg-app px-3 py-2 text-sm text-gray-200 placeholder:text-gray-600 focus:border-cyan-400 focus:outline-none";
+const TAMANHO_MAX_LOGO = 2 * 1024 * 1024; // 2MB — o arquivo vira base64 e é salvo direto no banco
+
+function lerArquivoComoDataUrl(arquivo: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const leitor = new FileReader();
+    leitor.onload = () => resolve(leitor.result as string);
+    leitor.onerror = () => reject(leitor.error);
+    leitor.readAsDataURL(arquivo);
+  });
+}
 
 export function EmpresaPage() {
   const queryClient = useQueryClient();
@@ -45,6 +55,23 @@ export function EmpresaPage() {
     salvar.mutate();
   }
 
+  async function handleLogoChange(e: ChangeEvent<HTMLInputElement>) {
+    const arquivo = e.target.files?.[0];
+    e.target.value = "";
+    if (!arquivo) return;
+    if (!arquivo.type.startsWith("image/")) {
+      setErro("O logo precisa ser um arquivo de imagem.");
+      return;
+    }
+    if (arquivo.size > TAMANHO_MAX_LOGO) {
+      setErro("O logo precisa ter no máximo 2MB.");
+      return;
+    }
+    setErro(null);
+    const dataUrl = await lerArquivoComoDataUrl(arquivo);
+    setForm((atual) => ({ ...atual, logoUrl: dataUrl }));
+  }
+
   return (
     <div className="max-w-lg">
       <h1 className="mb-1 text-2xl font-bold text-gray-100">Configurações</h1>
@@ -67,16 +94,24 @@ export function EmpresaPage() {
           </div>
 
           <div className="mb-3">
-            <label className="mb-1 block text-sm font-medium text-gray-400">URL do logo</label>
+            <label className="mb-1 block text-sm font-medium text-gray-400">Logo</label>
             <input
-              type="url"
-              value={form.logoUrl}
-              onChange={(e) => setForm({ ...form, logoUrl: e.target.value })}
-              placeholder="https://..."
-              className={inputClasses}
+              type="file"
+              accept="image/*"
+              onChange={handleLogoChange}
+              className="block w-full text-sm text-gray-400 file:mr-3 file:rounded file:border-0 file:bg-indigo-600 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white hover:file:bg-indigo-500"
             />
             {form.logoUrl && (
-              <img src={form.logoUrl} alt="Pré-visualização do logo" className="mt-2 max-h-16 rounded border border-line bg-white p-1" />
+              <div className="mt-2 flex items-center gap-3">
+                <img src={form.logoUrl} alt="Pré-visualização do logo" className="max-h-16 rounded border border-line bg-white p-1" />
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, logoUrl: "" })}
+                  className="text-xs font-medium text-red-400 hover:text-red-300"
+                >
+                  Remover logo
+                </button>
+              </div>
             )}
           </div>
 

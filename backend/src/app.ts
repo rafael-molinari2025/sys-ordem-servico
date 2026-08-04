@@ -28,7 +28,9 @@ app.use(
       : undefined,
   ),
 );
-app.use(express.json());
+// Limite maior que o padrão (100kb) porque o logo da empresa é enviado como data URI
+// (imagem em base64) embutido no JSON do PATCH /api/empresa.
+app.use(express.json({ limit: "5mb" }));
 
 app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
 
