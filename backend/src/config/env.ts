@@ -19,3 +19,8 @@ if (!parsed.success) {
 }
 
 export const env = parsed.data;
+
+/** FRONTEND_URL aceita múltiplos domínios separados por vírgula (para o allowlist de CORS) — para
+ * montar um link voltado ao usuário (autorização de orçamento, redefinição de senha), sempre usa
+ * apenas o primeiro, nunca a string bruta com vírgulas. */
+export const frontendUrlPrincipal = env.FRONTEND_URL.split(",")[0].trim();

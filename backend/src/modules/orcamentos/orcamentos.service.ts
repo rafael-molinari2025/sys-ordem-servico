@@ -1,5 +1,5 @@
 import { StatusOS } from "shared";
-import { env } from "../../config/env";
+import { frontendUrlPrincipal } from "../../config/env";
 import { renderHtmlToPdf } from "../../pdf/pdf.engine";
 import { renderOrcamentoHtml } from "../../pdf/templates/orcamento.template";
 import * as empresaService from "../empresa/empresa.service";
@@ -11,7 +11,7 @@ export async function gerarPdfOrcamento(ordemServicoId: string): Promise<Buffer>
   const ordem = await ordensService.buscarPorId(ordemServicoId);
   const empresa = await empresaService.obter();
   const token = await gerarOuRenovarToken(ordemServicoId);
-  const linkAutorizacao = `${env.FRONTEND_URL}/autorizacao/${token}`;
+  const linkAutorizacao = `${frontendUrlPrincipal}/autorizacao/${token}`;
   const html = renderOrcamentoHtml(ordem, empresa, linkAutorizacao);
   return renderHtmlToPdf(html);
 }
@@ -20,7 +20,7 @@ export async function enviarOrcamentoPorWhatsApp(ordemServicoId: string, usuario
   const ordem = await ordensService.buscarPorId(ordemServicoId);
   const empresa = await empresaService.obter();
   const token = await gerarOuRenovarToken(ordemServicoId);
-  const linkAutorizacao = `${env.FRONTEND_URL}/autorizacao/${token}`;
+  const linkAutorizacao = `${frontendUrlPrincipal}/autorizacao/${token}`;
 
   const html = renderOrcamentoHtml(ordem, empresa, linkAutorizacao);
   const pdfBuffer = await renderHtmlToPdf(html);

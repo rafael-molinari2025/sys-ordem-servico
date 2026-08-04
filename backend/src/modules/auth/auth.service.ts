@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { LoginResponse, UsuarioDTO, ValidarTokenRedefinicaoDTO } from "shared";
-import { env } from "../../config/env";
+import { env, frontendUrlPrincipal } from "../../config/env";
 import { ConflictError, UnauthorizedError } from "../../errors";
 import { prisma } from "../../lib/prisma";
 import { AuthPayload } from "../../middleware/auth.middleware";
@@ -68,8 +68,7 @@ export async function solicitarRedefinicao(email: string): Promise<void> {
     data: { usuarioId: usuario.id, token, expiraEm: new Date(Date.now() + TRINTA_MINUTOS_MS) },
   });
 
-  const frontendUrl = env.FRONTEND_URL.split(",")[0].trim();
-  const link = `${frontendUrl}/redefinir-senha/${token}`;
+  const link = `${frontendUrlPrincipal}/redefinir-senha/${token}`;
   const mensagem = `Olá, ${usuario.nome}! Recebemos uma solicitação para redefinir sua senha do Sistema de Ordem de Serviço. Se foi você, clique no link abaixo (válido por 30 minutos):`;
 
   try {
