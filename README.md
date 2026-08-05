@@ -1,6 +1,6 @@
 # Sistema de Ordem de Serviço
 
-Sistema web para gestão de ordens de serviço, estoque de peças, catálogo de serviços, clientes, orçamentos em PDF com autorização via link, envio por WhatsApp e relatórios — pensado para funcionar em qualquer segmento (oficina, assistência técnica, serviços gerais etc).
+Sistema web para gestão de ordens de serviço, estoque de peças, catálogo de serviços, clientes, orçamentos em PDF com link público de autorização e relatórios — pensado para funcionar em qualquer segmento (oficina, assistência técnica, serviços gerais etc).
 
 Para o manual de uso do sistema (como operar no dia a dia), veja [`manual/MANUAL_DE_UTILIZACAO.md`](manual/MANUAL_DE_UTILIZACAO.md).
 
@@ -50,4 +50,4 @@ npm run test --workspace backend
 ## Documentação
 
 - Manual de utilização (para quem opera o sistema no dia a dia): `manual/MANUAL_DE_UTILIZACAO.md`
-- Plano de arquitetura e decisões técnicas: código comentado nos pontos não-óbvios (ver `backend/src/modules/estoque/movimentacao.service.ts`, `backend/src/modules/ordens/ordens.service.ts`, `backend/src/modules/whatsapp/whatsapp.client.ts`)
+- Plano de arquitetura e decisões técnicas: código comentado nos pontos não-óbvios (ver `backend/src/modules/estoque/movimentacao.service.ts`, `backend/src/modules/ordens/ordens.service.ts`, `backend/src/pdf/pdf.engine.ts`)
